@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, print-scale: 100%">
+  <title>IF24 Call — Visual Summary | 4‑page PDF for LinkedIn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* A4纵向，适合打印和LinkedIn文档预览 */
+    @page {
+      size: A4;
+      margin: 1.6cm 1.4cm;
+    }
+
+    body {
+      background: #f5f0e8;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #0d1117;
+    }
+
+    /* 每个页面独立容器，强制分页 */
+    .page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      margin-bottom: 28px;
+      padding: 32px 36px 44px 36px;
+      page-break-after: always;
+      break-inside: avoid;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    /* 保持原始品牌元素 */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #1a6b3c;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #c8c0b0;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 18px;
+    }
+    h1 em {
+      font-style: italic;
+      color: #1a6b3c;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    h2 em {
+      font-style: italic;
+      color: #1a6b3c;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: rgba(13,17,23,0.65);
+      margin-bottom: 28px;
+      max-width: 90%;
+      line-height: 1.45;
+    }
+
+    .chart-card {
+      background: #fff;
+      border: 1px solid #c8c0b0;
+      border-radius: 14px;
+      padding: 16px 22px;
+      margin: 24px 0 20px 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+
+    .chart-card p {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(13,17,23,0.55);
+      margin-bottom: 12px;
+      letter-spacing: 0.01em;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+
+    .inline-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      border-top: 1px solid #e2ddd2;
+      padding-top: 20px;
+    }
+
+    .stat-item {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 900;
+      color: #1a6b3c;
+      line-height: 1;
+    }
+
+    .stat-desc {
+      font-size: 10.5px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(13,17,23,0.65);
+      margin-top: 6px;
+    }
+
+    .footnote {
+      font-size: 8.5px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(13,17,23,0.38);
+      margin-top: 32px;
+      border-top: 1px solid #e2ddd2;
+      padding-top: 12px;
+      text-align: center;
+    }
+
+    .tsne-wrapper {
+      background: #f9f9f9;
+      border-radius: 16px;
+      padding: 12px;
+      margin: 20px 0 16px;
+      border: 1px solid #e2ddd2;
+    }
+
+    canvas.tsne-canvas {
+      width: 100%;
+      height: auto;
+      background: #f9f9f9;
+      border-radius: 10px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 9px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(13,17,23,0.7);
+    }
+
+    .badge-mini {
+      display: inline-block;
+      background: #e8f5ee;
+      color: #1a6b3c;
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-right: 6px;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .page {
+        box-shadow: none;
+        margin: 0;
+        padding: 0.8cm 1.2cm;
+        border-radius: 0;
+        page-break-after: always;
+      }
+      .chart-card, .tsne-wrapper {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================= PAGE 1: TITLE ================= -->
+<div class="page">
+  <div class="section-label">EU Innovation Fund · 2024 Call Analysis</div>
+  <h1>What the <em>Innovation Fund</em><br>Actually Funds</h1>
+  <div class="sub">
+    Evidence from the IF 24 Call — €2.7 billion across 62 projects.<br>
+    53 Selected &amp; Signed, 8 Grant Agreement Not Executed, 1 Signed — No Selection Record.
+  </div>
+  <div class="inline-stats">
+    <div class="stat-item">
+      <div class="stat-number">€2.7B</div>
+      <div class="stat-desc">total signed EU contribution</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">53</div>
+      <div class="stat-desc">Selected &amp; Signed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">8</div>
+      <div class="stat-desc">Not Executed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">19</div>
+      <div class="stat-desc">countries</div>
+    </div>
+  </div>
+  <div class="footnote">
+    Sources: EC Selected Projects document (Nov 2025) &amp; Signed projects dashboard (April 2026)
+  </div>
+</div>
+
+<!-- ================= PAGE 2: WHICH TECHNOLOGIES ================= -->
+<div class="page">
+  <div class="section-label">Analysis — Point 1</div>
+  <h2>Which Technologies Does the<em> IF Actually Fund?</em></h2>
+  <div class="sub">CCS dominates capital allocation, followed by Battery Materials and e‑Fuels — each cluster reflecting where commercial risk is highest.</div>
+
+  <div class="chart-card">
+    <p>📊 EU Contribution by Technology Family — signed projects only (€2,698M total)</p>
+    <div class="chart-container" style="height: 240px;">
+      <canvas id="techDonutPage2"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <p>📈 Technology Funding Rank (€ million)</p>
+    <div class="chart-container" style="height: 200px;">
+      <canvas id="techBarPage2"></canvas>
+    </div>
+  </div>
+
+  <div class="inline-stats" style="margin-top: 4px;">
+    <div class="stat-item">
+      <div class="stat-number">~40%</div>
+      <div class="stat-desc">CCS &amp; CO₂ (€1,070M)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">~17%</div>
+      <div class="stat-desc">Battery &amp; CRM (€446M)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">~15%</div>
+      <div class="stat-desc">e‑Fuels &amp; PtX (€405M)</div>
+    </div>
+  </div>
+  <div class="footnote">CCS almost entirely cement & lime — unavoidable process emissions. Battery projects focus on supply chain (no cell gigafactories). e‑SAF is the second structural bet.</div>
+</div>
+
+<!-- ================= PAGE 3: TECH × SECTOR × SCALE ================= -->
+<div class="page">
+  <div class="section-label">Analysis — Point 2</div>
+  <h2>Technology, Sector &amp;<em> Scale: How They Relate</em></h2>
+  <div class="sub">Each IF scale category contains a distinct technology mix, reflecting capital requirements and deployment risk.</div>
+
+  <div class="chart-card">
+    <p>🏭 Technology distribution by scale category (signed projects)</p>
+    <div class="chart-container" style="height: 240px;">
+      <canvas id="scaleBarPage3"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <p>💰 Average EU contribution by scale (signed only)</p>
+    <div class="chart-container" style="height: 210px;">
+      <canvas id="avgContribPage3"></canvas>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px;">
+    <div><span class="badge-mini">Large</span> exclusively CCS or e‑fuels (avg €125.8M)</div>
+    <div><span class="badge-mini">Manufacturing</span> components for wind, batteries, heat pumps (avg €70.4M)</div>
+    <div><span class="badge-mini">Pilot</span> first‑of‑kind commercial deployments (avg €33.8M)</div>
+  </div>
+  <div class="footnote">Observed pattern: Large scale = full‑chain CCS or e‑SAF; Pilot includes novel integrations (RWGS+FT, geothermal+storage, chromatographic separation).</div>
+</div>
+
+<!-- ================= PAGE 4: TECHNOLOGY PROXIMITY MAP ================= -->
+<div class="page">
+  <div class="section-label">Analysis — Point 3</div>
+  <h2>Technology <em>Proximity Map:</em><br>How Similar Are the Projects?</h2>
+  <div class="sub">t‑SNE projection of all 62 projects based on technical vocabulary. Axes have no units — only relative distances matter.</div>
+
+  <div class="tsne-wrapper">
+    <canvas id="tsneCanvasPage4" class="tsne-canvas" style="width:100%; height:auto; max-height: 290px;"></canvas>
+  </div>
+  <div class="legend" id="tsneLegendPage4"></div>
+  <div class="inline-stats" style="margin-top: 12px; padding-top: 12px;">
+    <div class="stat-item">
+      <div class="stat-number">9</div>
+      <div class="stat-desc">technology clusters</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">12</div>
+      <div class="stat-desc">projects in CCS cluster (tightest group)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">0</div>
+      <div class="stat-desc">large-scale withdrawn projects</div>
+    </div>
+  </div>
+  <div class="footnote">Non‑executed projects sit inside same tech clusters as winners — differentiator was external infrastructure dependency, not technology maturity.</div>
+</div>
+
+<script>
+  // ============================================================
+  // PAGE 2 – DONUT CHART (Tech families)
+  // ============================================================
+  const techLabels = [
+    'CCS & CO₂ Management',
+    'Battery Materials & CRM',
+    'e-Fuels & Power-to-X',
+    'Wind Energy Manufacturing',
+    'Circular Economy & Recycling',
+    'Biofuels & Biomass',
+    'Industrial Heat & Electrification',
+    'Renewable Energy & Geothermal',
+    'Maritime Zero-Emission',
+    'Aviation & H₂ Transport',
+    'Low-carbon Cement (Clinker Subst.)',
+    'Biogas Components Mfg'
+  ];
+  const techValues = [1070, 446, 405, 271, 134, 100, 78, 52, 53, 36, 40, 14];
+  const techColors = [
+    '#1a6b3c','#2d9e5f','#4dc87a','#7ae0a0',
+    '#d4840a','#f0a832','#f7c96e',
+    '#1a4a8a','#3370c4','#6699e8',
+    '#7b0f7b','#c040c0'
+  ];
+
+  new Chart(document.getElementById('techDonutPage2'), {
+    type: 'doughnut',
+    data: { labels: techLabels, datasets: [{ data: techValues, backgroundColor: techColors, borderWidth: 2, borderColor: '#fff' }] },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'right', labels: { font: { size: 9, family: "'DM Mono', monospace" }, boxWidth: 10 } },
+                 tooltip: { callbacks: { label: (c) => ` ${c.label}: €${c.raw}M (${((c.raw/2698)*100).toFixed(1)}%)` } } },
+      cutout: '55%'
+    }
+  });
+
+  // Horizontal bar chart for tech rank (simplified bar chart)
+  const barCtx = document.getElementById('techBarPage2').getContext('2d');
+  const topTech = techLabels.slice(0, 6);
+  const topValues = techValues.slice(0, 6);
+  new Chart(barCtx, {
+    type: 'bar',
+    data: { labels: topTech, datasets: [{ label: 'EU contribution (€M)', data: topValues, backgroundColor: '#1a6b3c', borderRadius: 4 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` €${c.raw}M` } } },
+      scales: { x: { title: { display: true, text: '€ million', font: { size: 9 } }, ticks: { font: { size: 9 } } },
+                y: { ticks: { font: { size: 9, weight: 'bold' } } } }
+    }
+  });
+
+  // ============================================================
+  // PAGE 3 – stacked bar (scale distribution) + average contribution bar
+  // ============================================================
+  new Chart(document.getElementById('scaleBarPage3'), {
+    type: 'bar',
+    data: {
+      labels: ['Large (10)','Mfg (10)','Medium (17)','Pilot (8)','Small (9)'],
+      datasets: [
+        { label: 'CCS/CO₂', data: [6,0,2,2,0], backgroundColor: '#1a6b3c' },
+        { label: 'e-Fuels/PtX', data: [4,0,2,1,0], backgroundColor: '#d4840a' },
+        { label: 'Battery/CRM', data: [0,4,0,1,0], backgroundColor: '#1a4a8a' },
+        { label: 'Wind/Mfg', data: [0,4,0,0,0], backgroundColor: '#4dc87a' },
+        { label: 'Other', data: [0,2,13,4,9], backgroundColor: '#aaa' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 9 } } } },
+      scales: { x: { stacked: true, ticks: { font: { size: 9 } } }, y: { stacked: true, ticks: { font: { size: 9 } } } }
+    }
+  });
+
+  new Chart(document.getElementById('avgContribPage3'), {
+    type: 'bar',
+    data: {
+      labels: ['Large','Mfg','Medium','Pilot','Small'],
+      datasets: [{ label: 'Avg EU contribution (€M)', data: [125.8, 70.4, 24.4, 33.8, 5.8],
+                   backgroundColor: ['#1a6b3c','#7b0f7b','#1a4a8a','#c0392b','#d4840a'], borderRadius: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` €${c.raw}M average` } } },
+      scales: { y: { ticks: { callback: (v) => `€${v}M`, font: { size: 9 } }, grid: { color: '#eee' } },
+                x: { ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  // ============================================================
+  // PAGE 4 – T-SNE (full dataset, same as original report but only visual)
+  // ============================================================
+  const DATA = [
+    {"name":"DREAM","status":"signed","scale":"Large","sector":"Cement & lime","country":"Italy","cluster":"CCS & CO₂","color":"#1a7a4a","x":-8.524,"y":5.318},
+    {"name":"LUXIA","status":"signed","scale":"Large","sector":"Chemicals","country":"Spain","cluster":"e-Fuels & PtX","color":"#c87000","x":-3.381,"y":-8.296},
+    {"name":"APOLLOCO2-LT","status":"signed","scale":"Large","sector":"Other (CCS infra)","country":"Greece","cluster":"CCS & CO₂","color":"#1a7a4a","x":-10.062,"y":1.696},
+    {"name":"POLVOLT","status":"signed","scale":"Mfg","sector":"Non-ferrous metals / Energy storage","country":"Poland","cluster":"Battery & CRM","color":"#1a4a8a","x":-2.08,"y":-12.801},
+    {"name":"VAIA","status":"signed","scale":"Large","sector":"Cement & lime","country":"France","cluster":"CCS & CO₂","color":"#1a7a4a","x":-11.937,"y":2.862},
+    {"name":"CARBON HUB CPT01","status":"signed","scale":"Large","sector":"Cement & lime","country":"Romania","cluster":"CCS & CO₂","color":"#1a7a4a","x":-11.219,"y":3.479},
+    {"name":"AirvaultGoCO2","status":"signed","scale":"Large","sector":"Cement & lime","country":"France","cluster":"CCS & CO₂","color":"#1a7a4a","x":-6.592,"y":5.15},
+    {"name":"REC2pCAM","status":"signed","scale":"Mfg","sector":"Road transport (battery materials)","country":"France","cluster":"Battery & CRM","color":"#1a4a8a","x":-1.235,"y":-12.594},
+    {"name":"ANTHEMIS","status":"signed","scale":"Large","sector":"Cement & lime","country":"Belgium","cluster":"CCS & CO₂","color":"#1a7a4a","x":-8.325,"y":6.256},
+    {"name":"MEADOW","status":"signed","scale":"Mfg","sector":"Renewable energy components","country":"Germany / Denmark","cluster":"Wind Components","color":"#2aaa55","x":0.797,"y":-0.367},
+    {"name":"SB-VARKAUS","status":"signed","scale":"Mfg","sector":"Energy storage components","country":"Finland","cluster":"Battery & CRM","color":"#1a4a8a","x":5.241,"y":2.376},
+    {"name":"Fos3F","status":"signed","scale":"Mfg","sector":"Renewable energy components","country":"France","cluster":"Wind Components","color":"#2aaa55","x":0.121,"y":0.104},
+    {"name":"ENDOR","status":"signed","scale":"Large","sector":"Refineries (eSAF)","country":"Denmark","cluster":"e-Fuels & PtX","color":"#c87000","x":10.656,"y":-7.626},
+    {"name":"NEXTGEN CAM","status":"signed","scale":"Mfg","sector":"Road transport (battery materials)","country":"Portugal","cluster":"Battery & CRM","color":"#1a4a8a","x":-4.906,"y":-14.257},
+    {"name":"VB1F","status":"signed","scale":"Mfg","sector":"Renewable energy components","country":"Spain","cluster":"Wind Components","color":"#2aaa55","x":-2.28,"y":-2.312},
+    {"name":"BMS","status":"signed","scale":"Medium","sector":"Buildings / Non-ferrous metals","country":"Sweden","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":3.82,"y":-7.34},
+    {"name":"ASTRA PP","status":"signed","scale":"Pilot","sector":"Chemicals","country":"Belgium","cluster":"Circular Economy","color":"#8b008b","x":2.711,"y":-13.756},
+    {"name":"SLALOM 2.0","status":"signed","scale":"Pilot","sector":"Refineries (ferroalloy)","country":"Norway","cluster":"CCS & CO₂","color":"#1a7a4a","x":-7.22,"y":-1.594},
+    {"name":"RECLAIM","status":"signed","scale":"Medium","sector":"Maritime / Refineries","country":"Denmark","cluster":"e-Fuels & PtX","color":"#c87000","x":-5.582,"y":-6.725},
+    {"name":"TAKE KAIR","status":"signed","scale":"Pilot","sector":"Refineries (eSAF)","country":"France","cluster":"e-Fuels & PtX","color":"#c87000","x":8.601,"y":-8.225},
+    {"name":"NEXT HYDROMET","status":"signed","scale":"Pilot","sector":"Road transport (batteries)","country":"Finland","cluster":"Battery & CRM","color":"#1a4a8a","x":-2.178,"y":-14.679},
+    {"name":"Higher Ground","status":"signed-only","scale":"Mfg","sector":"Renewable energy components","country":"Sweden","cluster":"Wind Components","color":"#2aaa55","x":-1.242,"y":-2.314},
+    {"name":"Leopard","status":"signed","scale":"Medium","sector":"Cement & lime","country":"Belgium","cluster":"CCS & CO₂","color":"#1a7a4a","x":-9.949,"y":7.161},
+    {"name":"ReSTart","status":"signed","scale":"Large","sector":"Refineries (eSAF)","country":"France","cluster":"e-Fuels & PtX","color":"#c87000","x":9.91,"y":-10.004},
+    {"name":"RjukanLH2","status":"signed","scale":"Pilot","sector":"Hydrogen / Maritime","country":"Norway","cluster":"e-Fuels & PtX","color":"#c87000","x":-7.525,"y":-6.319},
+    {"name":"GESIIS","status":"signed","scale":"Pilot","sector":"Geothermal energy","country":"Italy","cluster":"Renewable Heat & Solar","color":"#b8930a","x":2.555,"y":7.484},
+    {"name":"Alpha One","status":"signed","scale":"Medium","sector":"Other (industrial heat)","country":"Belgium","cluster":"Circular Economy","color":"#8b008b","x":-0.87,"y":4.364},
+    {"name":"MECACLAY","status":"signed","scale":"Medium","sector":"Cement & lime","country":"Lithuania","cluster":"Low-carbon Materials","color":"#2266bb","x":-4.996,"y":2.069},
+    {"name":"Thermolysis","status":"signed","scale":"Medium","sector":"Chemicals","country":"Greece","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":1.588,"y":-9.249},
+    {"name":"W2BIOFUEL","status":"signed","scale":"Medium","sector":"Refineries","country":"France","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":3.643,"y":-4.835},
+    {"name":"SCOOP","status":"signed","scale":"Medium","sector":"Refineries","country":"Finland","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":4.275,"y":-3.41},
+    {"name":"DEZiR","status":"signed","scale":"Large","sector":"Refineries (eSAF)","country":"France","cluster":"e-Fuels & PtX","color":"#c87000","x":9.353,"y":-9.396},
+    {"name":"HuCCSar","status":"signed","scale":"Pilot","sector":"Other (CCS infra)","country":"Poland","cluster":"CCS & CO₂","color":"#1a7a4a","x":-12.267,"y":5.081},
+    {"name":"VIPER","status":"signed","scale":"Medium","sector":"Iron & steel","country":"Norway","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":3.571,"y":-5.848},
+    {"name":"COnet2 Sea","status":"signed","scale":"Medium","sector":"Other (CO₂ transport)","country":"Spain","cluster":"CCS & CO₂","color":"#1a7a4a","x":-10.338,"y":-1.333},
+    {"name":"ODIN","status":"signed","scale":"Pilot","sector":"Aviation","country":"Norway / UK","cluster":"H₂ Mobility & Maritime","color":"#c0392b","x":-12.936,"y":-9.02},
+    {"name":"eSeaRiverBarge","status":"signed","scale":"Medium","sector":"Maritime","country":"Netherlands","cluster":"Battery & CRM","color":"#1a4a8a","x":4.597,"y":1.484},
+    {"name":"OTO","status":"signed","scale":"Medium","sector":"Glass, ceramics & construction","country":"Spain","cluster":"Low-carbon Materials","color":"#2266bb","x":7.087,"y":-5.817},
+    {"name":"NotNukeOne","status":"signed","scale":"Medium","sector":"Solar energy","country":"Finland","cluster":"Renewable Heat & Solar","color":"#b8930a","x":0.008,"y":-7.374},
+    {"name":"ReNova ChemPET","status":"signed","scale":"Medium","sector":"Other (chemicals recycling)","country":"Italy","cluster":"Circular Economy","color":"#8b008b","x":3.208,"y":-14.784},
+    {"name":"ENGINEUS PULL","status":"signed","scale":"Small","sector":"Aviation","country":"France","cluster":"H₂ Mobility & Maritime","color":"#c0392b","x":-13.809,"y":-8.557},
+    {"name":"BIO-MEMBRANE","status":"signed","scale":"Mfg","sector":"Renewable energy components","country":"Netherlands","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":9.061,"y":-2.016},
+    {"name":"GRIP","status":"signed","scale":"Mfg","sector":"Renewable energy components","country":"Austria","cluster":"Renewable Heat & Solar","color":"#b8930a","x":0.53,"y":5.612},
+    {"name":"LCSCM","status":"signed","scale":"Small","sector":"Cement & lime","country":"France","cluster":"Low-carbon Materials","color":"#2266bb","x":-4.712,"y":2.844},
+    {"name":"BIOVIND","status":"signed","scale":"Medium","sector":"Refineries","country":"Norway","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":8.207,"y":-1.918},
+    {"name":"PP2XH","status":"signed","scale":"Medium","sector":"Refineries","country":"Estonia","cluster":"e-Fuels & PtX","color":"#c87000","x":-3.857,"y":-7.415},
+    {"name":"GREEN HEAT ASTURIAS","status":"signed","scale":"Small","sector":"Solar energy (industrial heat)","country":"Spain","cluster":"Renewable Heat & Solar","color":"#b8930a","x":1.283,"y":4.72},
+    {"name":"GREENFIELD BIOGAZ","status":"signed","scale":"Medium","sector":"Pulp & paper / Refineries","country":"France","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":8.644,"y":-0.059},
+    {"name":"INSPIRE-PV","status":"signed","scale":"Small","sector":"Non-ferrous metals","country":"France / Spain","cluster":"Biofuels & Biomass","color":"#8b5a2b","x":2.18,"y":-10.038},
+    {"name":"Reprocover5.0","status":"signed","scale":"Small","sector":"Cement & lime","country":"Belgium","cluster":"Circular Economy","color":"#8b008b","x":6.062,"y":-14.204},
+    {"name":"WasteLessDHS","status":"signed","scale":"Small","sector":"Other (district heating)","country":"Poland","cluster":"Renewable Heat & Solar","color":"#b8930a","x":0.109,"y":8.24},
+    {"name":"WATTRAXIS","status":"signed","scale":"Small","sector":"Solar energy","country":"France","cluster":"Renewable Heat & Solar","color":"#b8930a","x":6.864,"y":5.868},
+    {"name":"Absorption Heat Pump","status":"signed","scale":"Small","sector":"Other","country":"Germany","cluster":"Renewable Heat & Solar","color":"#b8930a","x":0.35,"y":9.018},
+    {"name":"LEYMEL","status":"signed","scale":"Small","sector":"Other energy storage","country":"France","cluster":"Renewable Heat & Solar","color":"#b8930a","x":5.9,"y":5.735},
+    {"name":"DEMONSTR8","status":"withdrawn","scale":"Pilot","sector":"Non-ferrous metals","country":"France","cluster":"Battery & CRM","color":"#1a4a8a","x":-3.384,"y":-15.217},
+    {"name":"H2CWAY","status":"withdrawn","scale":"Medium","sector":"Road transport","country":"Czech Republic","cluster":"H₂ Mobility & Maritime","color":"#c0392b","x":-11.863,"y":-9.995},
+    {"name":"H2EAT","status":"withdrawn","scale":"Small","sector":"Manufacturing / Buildings","country":"Italy","cluster":"H₂ Mobility & Maritime","color":"#c0392b","x":-9.966,"y":-5.795},
+    {"name":"H2PEARL","status":"withdrawn","scale":"Mfg","sector":"Manufacturing (EII components)","country":"Germany","cluster":"Circular Economy","color":"#8b008b","x":7.028,"y":-12.142},
+    {"name":"MAGHYC","status":"withdrawn","scale":"Pilot","sector":"Maritime","country":"Finland","cluster":"CCS & CO₂","color":"#1a7a4a","x":-9.838,"y":-4.09},
+    {"name":"MCC2Hub","status":"withdrawn","scale":"Pilot","sector":"Maritime","country":"Netherlands","cluster":"CCS & CO₂","color":"#1a7a4a","x":-9.381,"y":-2.468},
+    {"name":"SCW Steel CleanUp","status":"withdrawn","scale":"Medium","sector":"Cement & lime (steel sector)","country":"Sweden","cluster":"Circular Economy","color":"#8b008b","x":4.479,"y":-15.343},
+    {"name":"Trollhattan","status":"withdrawn","scale":"Mfg","sector":"Renewable energy components","country":"Sweden","cluster":"Wind Components","color":"#2aaa55","x":-0.104,"y":-3.108}
+  ];
+
+  const CLUSTER_COLORS = {
+    'CCS & CO₂':'#1a7a4a', 'e-Fuels & PtX':'#c87000', 'Battery & CRM':'#1a4a8a',
+    'Wind Components':'#2aaa55', 'Biofuels & Biomass':'#8b5a2b', 'Circular Economy':'#8b008b',
+    'Renewable Heat & Solar':'#b8930a', 'H₂ Mobility & Maritime':'#c0392b', 'Low-carbon Materials':'#2266bb'
+  };
+
+  function drawTsne() {
+    const canvas = document.getElementById('tsneCanvasPage4');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const container = canvas.parentElement;
+    const w = container.clientWidth - 20;
+    const h = Math.min(280, w * 0.65);
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+
+    const xs = DATA.map(d => d.x), ys = DATA.map(d => d.y);
+    const xMin = Math.min(...xs)-1, xMax = Math.max(...xs)+1;
+    const yMin = Math.min(...ys)-1, yMax = Math.max(...ys)+1;
+    const pad = 35;
+    function tx(x) { return pad + (x - xMin)/(xMax - xMin)*(w - 2*pad); }
+    function ty(y) { return pad + (1 - (y - yMin)/(yMax - yMin))*(h - 2*pad); }
+
+    ctx.fillStyle = '#f9f9f9';
+    ctx.fillRect(0, 0, w, h);
+    // draw points
+    DATA.forEach(d => {
+      const x = tx(d.x), y = ty(d.y);
+      ctx.beginPath();
+      if (d.status === 'withdrawn') {
+        ctx.arc(x, y, 4, 0, 2*Math.PI);
+        ctx.fillStyle = 'transparent';
+        ctx.strokeStyle = d.color;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      } else {
+        ctx.arc(x, y, 4.5, 0, 2*Math.PI);
+        ctx.fillStyle = d.color + 'cc';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+    });
+    // legend
+    const legDiv = document.getElementById('tsneLegendPage4');
+    if (legDiv) {
+      const clusters = [...new Set(DATA.map(d => d.cluster))];
+      legDiv.innerHTML = clusters.map(cl => `<span style="display:inline-flex;align-items:center;gap:5px"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="${CLUSTER_COLORS[cl] || '#888'}"/></svg>${cl}</span>`).join('');
+    }
+  }
+  window.addEventListener('load', () => { drawTsne(); });
+  window.addEventListener('resize', () => { drawTsne(); });
+</script>
+</body>
+</html>
