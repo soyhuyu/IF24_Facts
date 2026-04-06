@@ -410,34 +410,7 @@
   @keyframes fadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: none; } }
   @keyframes spin { from { transform: translateY(-50%) rotate(0deg); } to { transform: translateY(-50%) rotate(360deg); } }
 
-  /* ===== NAVIGATION ===== */
-  .toc {
-    background: var(--ink);
-    border-bottom: 3px solid var(--green);
-    padding: 0 80px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .toc-inner {
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-  }
-  .toc a {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    padding: 16px 24px;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -3px;
-    white-space: nowrap;
-    transition: all 0.2s;
-  }
-  .toc a:hover { color: var(--green-light); border-bottom-color: var(--green-light); }
+  
 
   /* ===== SECTION WRAPPER ===== */
   .section {
